@@ -1,0 +1,48 @@
+﻿	<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+		<PropertyGroup>
+			<ProjectGuid>{CABF4D53-D66E-4965-B3AD-59CBBC23B3E5}</ProjectGuid>
+		</PropertyGroup>
+		<ItemGroup>
+			<Projects Include="..\MP3\MP3_22.cbproj">
+				<Dependencies/>
+			</Projects>
+			<Projects Include="MP3.cbproj">
+				<Dependencies/>
+			</Projects>
+		</ItemGroup>
+		<ProjectExtensions>
+			<Borland.Personality>Default.Personality.12</Borland.Personality>
+			<Borland.ProjectType/>
+			<BorlandProject>
+				<Default.Personality/>
+			</BorlandProject>
+		</ProjectExtensions>
+		<Target Name="MP3_22">
+			<MSBuild Projects="..\MP3\MP3_22.cbproj"/>
+		</Target>
+		<Target Name="MP3_22:Clean">
+			<MSBuild Projects="..\MP3\MP3_22.cbproj" Targets="Clean"/>
+		</Target>
+		<Target Name="MP3_22:Make">
+			<MSBuild Projects="..\MP3\MP3_22.cbproj" Targets="Make"/>
+		</Target>
+		<Target Name="MP3">
+			<MSBuild Projects="MP3.cbproj"/>
+		</Target>
+		<Target Name="MP3:Clean">
+			<MSBuild Projects="MP3.cbproj" Targets="Clean"/>
+		</Target>
+		<Target Name="MP3:Make">
+			<MSBuild Projects="MP3.cbproj" Targets="Make"/>
+		</Target>
+		<Target Name="Build">
+			<CallTarget Targets="MP3_22;MP3"/>
+		</Target>
+		<Target Name="Clean">
+			<CallTarget Targets="MP3_22:Clean;MP3:Clean"/>
+		</Target>
+		<Target Name="Make">
+			<CallTarget Targets="MP3_22:Make;MP3:Make"/>
+		</Target>
+		<Import Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')" Project="$(BDS)\Bin\CodeGear.Group.Targets"/>
+	</Project>

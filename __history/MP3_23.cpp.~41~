@@ -1,0 +1,425 @@
+//---------------------------------------------------------------------------
+
+#include <vcl.h>
+#include <FileCtrl.hpp>
+#include <SysUtils.hpp>
+
+#include "pngimage.hpp"
+#pragma hdrstop
+#include <MPlayer.hpp>
+#include "MP3_23.h"
+//---------------------------------------------------------------------------
+#pragma package(smart_init)
+#pragma resource "*.dfm"
+
+
+
+TForm2 *Form2;
+//---------------------------------------------------------------------------
+__fastcall TForm2::TForm2(TComponent* Owner)
+	: TForm(Owner)
+{
+}
+
+int mode=0;
+/*void Volum(unsigned int SetVolume)
+{
+  DWORD Volume;
+  WAVEOUTCAPSA Woc;
+  if(waveOutGetDevCapsA(WAVE_MAPPER, &Woc, sizeof(Woc)) == MMSYSERR_NOERROR)
+	if(Woc.dwSupport && WAVECAPS_VOLUME == WAVECAPS_VOLUME)
+	  waveOutSetVolume((HWAVEOUT)WAVE_MAPPER, MAKELONG(SetVolume, SetVolume));
+}      */
+
+
+TMediaPlayer* MediaPlayer1 = new TMediaPlayer(Form2);
+
+//---------------------------------------------------------------------------
+void __fastcall TForm2::FormResize(TObject *Sender)
+{
+Playlist->Width = Form2->Width*1.0 - 6;
+TrackBar1->Width = Form2->Width-20;
+//Label1->Width = Form2->Width*1-5;
+}
+//---------------------------------------------------------------------------
+
+
+
+
+
+void __fastcall TForm2::N2Click(TObject *Sender)
+{
+/*if ( OpenDialog1->Execute() )
+{
+int iCount = OpenDialog1->Files->Count;
+String s = "";
+for ( int i = 0; i < iCount; i++ )
+{
+s = OpenDialog1->Files->Strings[i];
+s = ExtractFileName(s);
+s = ChangeFileExt(ExtractFileName(s),"");
+Playlist->Items->Add(s.c_str());
+}
+}        */
+
+if ( OpenDialog1->Execute() )
+{
+int iCount = OpenDialog1->Files->Count;
+String s = "";
+for ( int i = 0; i < iCount; i++ )
+{
+s = OpenDialog1->Files->Strings[i];
+s = ExtractFileName(s);
+Playlist->Items->Add(s.c_str());
+}
+}
+}
+//---------------------------------------------------------------------------
+
+
+void __fastcall TForm2::SpeedButton1Click(TObject *Sender)
+{
+if (Playlist->ItemIndex >= 0)
+{
+MediaPlayer1->Parent = this;
+MediaPlayer1->Visible = false;
+AnsiString fn;
+fn=Playlist->Items->Strings [Playlist->ItemIndex];
+MediaPlayer1->FileName=fn;
+MediaPlayer1->Open();
+MediaPlayer1->Play();
+}
+}
+//---------------------------------------------------------------------------
+
+
+void __fastcall TForm2::TrackBar2Change(TObject *Sender)
+{
+TrackBar2->Max = 65350 ;
+waveOutSetVolume(0, MAKELONG(TrackBar2->Position, TrackBar2->Position));
+ //2 вариант
+//Volum((TrackBar2 -> Max - TrackBar2 -> Position) * 4369);
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TForm2::FormShow(TObject *Sender)
+{
+TrackBar2->Max = 65350 ;
+waveOutSetVolume(0, MAKELONG(TrackBar2->Position, TrackBar2->Position));
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TForm2::SpeedButton2Click(TObject *Sender)
+{
+if (Playlist->ItemIndex >= 0)
+{
+MediaPlayer1->Parent = this;
+MediaPlayer1->Visible = false;
+AnsiString fn;
+fn=Playlist->Items->Strings [Playlist->ItemIndex];
+MediaPlayer1->FileName=fn;
+MediaPlayer1->Stop();
+}
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TForm2::SpeedButton4Click(TObject *Sender)
+{
+if (Playlist->ItemIndex >= 0)
+{
+MediaPlayer1->Parent = this;
+MediaPlayer1->Visible = false;
+AnsiString fn;
+Playlist->ItemIndex += 1;
+fn=Playlist->Items->Strings [Playlist->ItemIndex];
+MediaPlayer1->FileName=fn;
+MediaPlayer1->Open();
+MediaPlayer1->Play();
+}
+}
+
+
+//---------------------------------------------------------------------------
+
+void __fastcall TForm2::PlaylistDblClick(TObject *Sender)
+{
+if (Playlist->ItemIndex >= 0)
+{
+MediaPlayer1->Parent = this;
+MediaPlayer1->Visible = false;
+AnsiString fn;
+fn=Playlist->Items->Strings [Playlist->ItemIndex];
+MediaPlayer1->FileName=fn;
+MediaPlayer1->Open();
+MediaPlayer1->Play();
+}
+}
+//---------------------------------------------------------------------------
+
+
+bool ctrl;
+void __fastcall TForm2::PlaylistKeyDown(TObject *Sender, WORD &Key, TShiftState Shift)
+{
+if (Key == 46)
+{
+for(int i = Playlist->Items->Count-1; i >= 0; i--)
+if(Playlist->Selected[i])
+Playlist->Items->Delete(i);
+ }
+
+if (Key == 17){
+ctrl=true;
+}
+if (Key == 'A' && ctrl)
+{
+Playlist->SelectAll();
+}
+}
+//---------------------------------------------------------------------------
+
+
+void __fastcall TForm2::PlaylistKeyUp(TObject *Sender, WORD &Key, TShiftState Shift)
+{
+if (Key == 17){
+ctrl=false;
+}
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TForm2::SpeedButton3Click(TObject *Sender)
+{
+if (Playlist->ItemIndex >= 0)
+{
+MediaPlayer1->Parent = this;
+MediaPlayer1->Visible = false;
+AnsiString fn;
+Playlist->ItemIndex -= 1;
+fn=Playlist->Items->Strings [Playlist->ItemIndex];
+MediaPlayer1->FileName=fn;
+MediaPlayer1->Open();
+MediaPlayer1->Play();
+}
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TForm2::SpeedButton5Click(TObject *Sender)
+{
+if (Playlist->ItemIndex >= 0)
+{
+MediaPlayer1->Parent = this;
+MediaPlayer1->Visible = false;
+AnsiString fn;
+fn=Playlist->Items->Strings [Playlist->ItemIndex];
+MediaPlayer1->FileName=fn;
+MediaPlayer1->Pause();
+}
+}
+//---------------------------------------------------------------------------
+
+
+/*void ListFiles(TObject *Sender)
+{
+UnicodeString path;
+TStringList *List = new TStringList;
+String ok;
+// Эта процедура выводит список файлов и  вызывает
+// саму себя для всех  каталогов
+TSearchRec sr;
+if (SelectDirectory("Открыть папку","",path))
+{
+if (FindFirst(path+"*.mp3*",  faAnyFile, sr) == 0)
+{
+     do
+	 {
+         if (sr.Attr &  faDirectory)
+          {
+              if (sr.Name!=".")
+              if  (sr.Name!="..")
+			  {
+
+				  ListFiles(path+sr.Name+"\\", List);// Рекурсивный  вызов
+			  }
+          }
+          else
+          {
+           AnsiString  Ext=ExtractFileExt(sr.Name).UpperCase();
+		   if  (Ext=="*.mp3")
+		  List->Add(sr.Name) ;
+
+		  }
+     }
+     while  (FindNext(sr) ==  0);
+	 FindClose(sr);
+	 }
+
+}
+delete List;
+}  */
+
+
+
+void __fastcall TForm2::N4Click(TObject *Sender)
+{
+/*String Dir;
+TSearchRec sr;
+
+if(SelectDirectory("Открыть папку","",Dir))
+{
+Dir = IncludeTrailingPathDelimiter(Dir);
+int ok = FindFirst(Dir+ "*.mp3", faAnyFile, sr);
+while(ok == 0)
+{
+if((sr.Name != "")&&(sr.Name != ".")&&(sr.Name != ".."))
+{
+if(sr.Attr != faDirectory)
+
+Playlist->Items->Add(sr.Name);
+}
+ok = FindNext(sr);
+}
+FindClose(sr);
+}
+
+
+TSearchRec sr;
+
+if(SelectDirectory("Открыть папку","",Dir))
+{
+Dir = IncludeTrailingPathDelimiter(Dir);
+for (int ok = FindFirst(Dir+"*.mp3", faDirectory, sr);!ok;ok=FindNext(sr))
+{
+if((sr.Name != "")&&(sr.Name != ".")&&(sr.Name != ".."))
+{
+Form2->Playlist->Items->Add(sr.Name);
+}
+}
+FindClose(sr);
+}  */
+
+//AnsiString path = "";
+
+/*TSearchRec SearchRec;
+String Directory;
+SelectDirectory("Select Directory","",Directory);
+
+Directory = IncludeTrailingPathDelimiter(Directory);
+if ( FindFirst("*.mp3", faAnyFile, SearchRec) != 0 )
+{
+}
+Playlist->Items->Add(SearchRec.Name);
+while (FindNext(SearchRec) == 0)
+Playlist->Items->Add(SearchRec.Name);
+Playlist->ItemIndex  =  0;
+Playlist->Items->Strings [Playlist->ItemIndex]; */
+
+
+ /*UnicodeString Dir;
+
+  if  ( SelectDirectory("Выберите папку,"
+		   " в которой находятся mp3-файлы", "", Dir) )
+  {
+	Dir = Dir + "\\";
+	TSearchRec sr;
+
+		for (int r=FindFirst(Dir+"*.mp3*", faDirectory, sr);!r;r=FindNext(sr))//поиск файлов в папке Dir
+		{
+				if (sr.Name!=".")
+				if (sr.Name!="..")
+				Playlist->Items->Add(Dir+sr.Name); //Вывод: папка+название файла
+		}
+	// каталог, в котором находятся MP3 файлы выбран
+	//SoundPath = Dir;
+   //	PlayList(SoundPath);
+  } */
+
+/*String Dir;
+if(SelectDirectory("Открыть папку","",Dir))
+{
+TSearchRec sr;
+Dir = Dir + "\\";
+if (FindFirst(Dir+"*.mp3*", faDirectory, sr)==0)
+{
+do
+Playlist->Items->Add(Dir+sr.Name);
+while(FindNext(sr)==0);
+}
+}  */
+
+TSearchRec sr, sr2;
+String Dir;
+String dir;
+
+if(SelectDirectory("Открыть папку","",Dir))
+{
+
+Dir = Dir + "\\";
+dir = dir + "\\";
+if (FindFirst(Dir+"*.mp3", faDirectory, sr)==0)
+{
+do
+Playlist->Items->Add(Dir+sr.Name);
+while(FindNext(sr)==0);
+}
+}
+
+if (FindFirst(Dir+dir+"*.mp3", faDirectory, sr2)==0)
+{
+do
+Playlist->Items->Add(Dir+dir+sr2.Name);
+while(FindNext(sr2)==0);
+}
+
+
+
+
+
+
+
+
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//---------------------------------------------------------------------------
+
